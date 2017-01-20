@@ -69,10 +69,10 @@ const Leaf = ({ children, ...props }) => {
 ```
 
 ## what has been changed compare to react-hotkeys
-The main change here is allowing event to bubble:
+The main changes here are to allow event to bubble:
 
-`react-hotkeys` will not allow parent to handle the event if child has the a same handler. This behaviour works perfectly unless you need to do optional event handle.
-For example, `onCancel` event should be handled in a certain condition in child other wise parent will handle it. However, `react-hotkeys` won't work in this case.
+`react-hotkeys` don't allow parent to handle the event if child has the a same handler. This behaviour works perfectly unless you need to do optional event handle.
+For example, `onCancel` event should be handled in a certain condition in a child component other wise parent will handle it. However, `react-hotkeys` won't work in this case.
 
 `react-keyboard` uses `mousetrap`. It respects the way how [mousetrap](https://github.com/ccampbell/mousetrap) handle event bubble:
 
