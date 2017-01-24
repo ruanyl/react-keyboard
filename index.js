@@ -14,7 +14,6 @@ const Node = ({ children, ...props }) => {
   }
   const snapLeft = (e, seq) => {
     console.log(`snap left with: ${seq}`)
-    return true
   }
   const handlers = {
     snapLeft,
@@ -35,6 +34,7 @@ const Leaf = ({ children, ...props }) => {
   // delete handler bubbles to it's parent
   const deleteNode = (e, seq) => {
     console.log(`delete node with: ${seq}`)
+    return true
   }
   const handlers = {
     deleteNode,

@@ -19,7 +19,6 @@ function getSequencesFromMap(hotKeyMap, hotKeyName) {
 export class HotKeys extends Component {
 
   static propTypes = {
-    allowBubble: React.PropTypes.bool,
     active: React.PropTypes.bool,
     children: React.PropTypes.node,
     onFocus: React.PropTypes.func,
@@ -38,11 +37,6 @@ export class HotKeys extends Component {
     hotKeyMap: React.PropTypes.object,
   }
 
-  constructor(props) {
-    super(props)
-    this.isActive = true
-  }
-
   getChildContext() {
     return {
       hotKeyParent: this,
@@ -56,11 +50,6 @@ export class HotKeys extends Component {
 
   componentDidMount() {
     this.mousetrap = new Mousetrap(findDOMNode(this))
-
-    if (!this.props.allowBubble && this.context.hotKeyParent) {
-      this.context.hotKeyParent.isActive = false
-    }
-
     this.updateHotKeys(true)
   }
 
@@ -75,14 +64,12 @@ export class HotKeys extends Component {
   }
 
   onFocus = ({ ...args }) => {
-    this.isActive = true
     if (this.props.onFocus) {
       this.props.onFocus(...args)
     }
   }
 
   onBlur = ({ ...args }) => {
-    this.isActive = false
     if (this.props.onBlur) {
       this.props.onBlur(...args)
     }
@@ -121,7 +108,6 @@ export class HotKeys extends Component {
 
     const hotKeyMap = this.getMap()
     let allSequenceHandlers = []
-    const that = this
 
     // Group all our handlers by sequence
     Object.keys(handlers).forEach(hotKey => {
@@ -130,25 +116,9 @@ export class HotKeys extends Component {
 
       const sequenceHandlers = sequences.map(seq => {
         const { action, sequence = seq } = seq
-        const callback = (event, actualSeq) => {
-          const isActive = that.props.active || that.isActive
-
-          if (isActive) {
-            // follow event bubble rule of mousetrap(which is also the same as jquery)
-            // when handler return false: do not propagation
-            // when handler return true: do propagation
-            const shouldPropagation = handler(event, actualSeq)
-            if (that.context.hotKeyParent) {
-              if (shouldPropagation) {
-                that.context.hotKeyParent.isActive = true
-              } else {
-                that.context.hotKeyParent.isActive = false
-              }
-            }
-            return shouldPropagation
-          }
-          return null
-        }
+        // follow event bubble rule of mousetrap(which is also the same as jquery)
+        // when handler return false: stop propagation
+        const callback = (event, actualSeq) => handler(event, actualSeq)
 
         return { callback, action, sequence }
       })
@@ -163,7 +133,7 @@ export class HotKeys extends Component {
 
   render() {
     /* eslint-disable no-unused-vars */
-    const { children, keyMap, handlers, allowBubble, ...props } = this.props
+    const { children, keyMap, handlers, ...props } = this.props
 
     return (
       <FocusTrap {...props} onFocus={this.onFocus} onBlur={this.onBlur}>
