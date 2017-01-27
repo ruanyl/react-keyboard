@@ -78,13 +78,24 @@ For example, `onCancel` event should be handled in a certain condition in a chil
 
 > if event handler returns true, event bubbles to parent, if event handler returns false, it will not bubble
 
-By default, the bubbling behaviour of `react-keyboard` is exactly the same as `react-hotkeys`: if event handled by child, then parent will not be aware of this event. But if the event handler returns `true`,
-then event `bubble` to parent.
+By default, the bubbling behaviour of `react-keyboard` is exactly the same as `mousetrap`: event bubbles up by default. But if the event handler returns `false`, then event will stop bubbling.
+
+When handler returns `false`, internally `mousetrap` will do:
+
+```
+e.stopPropagation()
+e.preventDefault()
+```
+
+If you don't want to `preventDefault`, simply do not `return false` and add `e.stopPropagation()` in your handler.
 
 ## Install
 ```
 npm install react-keyboard
 ```
+
+## Why not fork?
+Write in `ES6 extends Component` manner and the principle changed.
 
 ## License
 MIT
