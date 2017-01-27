@@ -62,8 +62,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ruanyl/react-hotkeys.git"
+    "url": "https://github.com/ruanyl/react-keyboard.git"
   },
-  "homepage": "https://github.com/ruanyl/react-hotkeys",
-  "bugs": "https://github.com/ruanyl/react-hotkeys/issues"
+  "homepage": "https://github.com/ruanyl/react-keyboard",
+  "bugs": "https://github.com/ruanyl/react-keyboard/issues"
 }
