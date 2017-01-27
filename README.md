@@ -14,7 +14,7 @@ import {HotKeys} from 'react-keyboard';
 
 // Simple "name:key sequence/s" to create a hotkey map
 const keyMap = {
-  snapLeft: ['command+k'],
+  cmdK: ['command+k'],
   deleteNode: ['del', 'backspace'],
 }
 
@@ -36,12 +36,13 @@ render(
 const Node = ({ children, ...props }) => {
   const deleteNode = (e, seq) => {
     console.log(`delete node with: ${seq}`)
+    return false
   }
-  const snapLeft = (e, seq) => {
+  const cmdK = (e, seq) => {
     console.log(`snap left with: ${seq}`)
   }
   const handlers = {
-    snapLeft,
+    cmdK,
     deleteNode,
   }
   return (
@@ -55,7 +56,6 @@ const Leaf = ({ children, ...props }) => {
   // delete handler bubbles to it's parent
   const deleteNode = (e, seq) => {
     console.log(`delete node with: ${seq}`)
-    return true
   }
   const handlers = {
     deleteNode,
