@@ -19,6 +19,30 @@ function getSequencesFromMap(hotKeyMap, hotKeyName) {
 
 export class HotKeys extends Component {
 
+  static propTypes = {
+    active: PropTypes.bool,
+    children: PropTypes.node,
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func,
+    keyMap: PropTypes.object,
+    handlers: PropTypes.object,
+  }
+
+  static contextTypes = {
+    hotKeyParent: PropTypes.any,
+    hotKeyMap: PropTypes.object,
+  }
+
+  static childContextTypes = {
+    hotKeyParent: PropTypes.any,
+    hotKeyMap: PropTypes.object,
+  }
+
+  constructor(props) {
+    super(props)
+    this.wrappedComponent = null
+  }
+
   getChildContext() {
     return {
       hotKeyParent: this,
@@ -118,28 +142,9 @@ export class HotKeys extends Component {
     const { children, keyMap, handlers, ...props } = this.props
 
     return (
-      <FocusTrap {...props} onFocus={this.onFocus} onBlur={this.onBlur}>
+      <FocusTrap {...props} onRefUpdated={childNode => { this.wrappedComponent = childNode }} onFocus={this.onFocus} onBlur={this.onBlur}>
         {children}
       </FocusTrap>
     )
   }
-}
-
-HotKeys.propTypes = {
-  active: PropTypes.bool,
-  children: PropTypes.node,
-  onFocus: PropTypes.func,
-  onBlur: PropTypes.func,
-  keyMap: PropTypes.object,
-  handlers: PropTypes.object,
-}
-
-HotKeys.contextTypes = {
-  hotKeyParent: PropTypes.any,
-  hotKeyMap: PropTypes.object,
-}
-
-HotKeys.childContextTypes = {
-  hotKeyParent: PropTypes.any,
-  hotKeyMap: PropTypes.object,
 }
