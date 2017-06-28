@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { findDOMNode } from 'react-dom'
 import Mousetrap from 'mousetrap'
 
@@ -17,25 +18,6 @@ function getSequencesFromMap(hotKeyMap, hotKeyName) {
 }
 
 export class HotKeys extends Component {
-
-  static propTypes = {
-    active: React.PropTypes.bool,
-    children: React.PropTypes.node,
-    onFocus: React.PropTypes.func,
-    onBlur: React.PropTypes.func,
-    keyMap: React.PropTypes.object,
-    handlers: React.PropTypes.object,
-  }
-
-  static contextTypes = {
-    hotKeyParent: React.PropTypes.any,
-    hotKeyMap: React.PropTypes.object,
-  }
-
-  static childContextTypes = {
-    hotKeyParent: React.PropTypes.any,
-    hotKeyMap: React.PropTypes.object,
-  }
 
   getChildContext() {
     return {
@@ -141,4 +123,23 @@ export class HotKeys extends Component {
       </FocusTrap>
     )
   }
+}
+
+HotKeys.propTypes = {
+  active: PropTypes.bool,
+  children: PropTypes.node,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func,
+  keyMap: PropTypes.object,
+  handlers: PropTypes.object,
+}
+
+HotKeys.contextTypes = {
+  hotKeyParent: PropTypes.any,
+  hotKeyMap: PropTypes.object,
+}
+
+HotKeys.childContextTypes = {
+  hotKeyParent: PropTypes.any,
+  hotKeyMap: PropTypes.object,
 }

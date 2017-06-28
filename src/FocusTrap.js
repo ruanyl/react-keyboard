@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 export const FocusTrap = ({ component: Component, children, ...props }) =>
   <Component tabIndex="-1" {...props}>
@@ -6,10 +7,10 @@ export const FocusTrap = ({ component: Component, children, ...props }) =>
   </Component>
 
 FocusTrap.propTypes = {
-  onFocus: React.PropTypes.func,
-  onBlur: React.PropTypes.func,
-  component: React.PropTypes.any,
-  children: React.PropTypes.node,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func,
+  component: PropTypes.any,
+  children: PropTypes.node,
 }
 
 FocusTrap.defaultProps = {
