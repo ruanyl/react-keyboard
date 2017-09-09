@@ -152,7 +152,7 @@ export class HotKeys extends Component {
 
   render() {
     /* eslint-disable no-unused-vars */
-    const { children, keyMap, handlers, ...props } = this.props
+    const { children, keyMap, handlers, focusOnMount, ...props } = this.props
 
     return (
       <FocusTrap {...props} onRefUpdated={childNode => { this.wrappedComponent = childNode }} onFocus={this.onFocus} onBlur={this.onBlur}>
