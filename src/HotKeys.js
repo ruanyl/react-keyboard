@@ -63,6 +63,7 @@ export class HotKeys extends Component {
     this.dom = findDOMNode(this)
     this.mousetrap = new Mousetrap(this.dom)
     this.updateHotKeys(true)
+    this.mounted = true
     if (this.props.focusOnMount) {
       this.dom.focus()
     }
@@ -76,7 +77,11 @@ export class HotKeys extends Component {
     if (this.mousetrap) {
       this.mousetrap.reset()
     }
-    const hotKeyParent = this.context.hotKeyParent
+    let hotKeyParent = this.context.hotKeyParent
+    this.mounted = false
+    while (hotKeyParent && hotKeyParent.mounted === false) {
+      hotKeyParent = hotKeyParent.context.hotKeyParent
+    }
     if (hotKeyParent && hotKeyParent.dom) {
       hotKeyParent.dom.focus()
     }
