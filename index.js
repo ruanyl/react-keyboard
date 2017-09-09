@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { render } from 'react-dom'
 
 import { HotKeys } from './src/HotKeys'
@@ -8,23 +8,37 @@ const keyMap = {
   deleteNode: ['del', 'backspace'],
 }
 
-const Node = ({ children, ...props }) => {
-  const deleteNode = (e, seq) => {
+class Node extends Component {
+
+  constructor(props) {
+    super(props)
+    this.handlers = {
+      cmdK: this.cmdK,
+      deleteNode: this.deleteNode,
+    }
+    this.state = {
+      show: true,
+    }
+  }
+
+  deleteNode = (e, seq) => {
     console.log(`delete node with: ${seq}`)
+    this.setState({ show: false })
     return false
   }
-  const cmdK = (e, seq) => {
+
+  cmdK = (e, seq) => {
     console.log(`command + k with: ${seq}`)
   }
-  const handlers = {
-    cmdK,
-    deleteNode,
+
+  render() {
+    return (
+      this.state.show ?
+        <HotKeys handlers={this.handlers} {...this.props}>
+          { this.props.children }
+        </HotKeys> : null
+    )
   }
-  return (
-    <HotKeys handlers={handlers} {...props}>
-      { children }
-    </HotKeys>
-  )
 }
 
 Node.propTypes = {
@@ -54,7 +68,9 @@ render(
   <HotKeys keyMap={keyMap}>
     <Node style={{ border: '1px solid #ccc' }}>
       Node1
-      <Leaf style={{ border: '1px solid #ff0000' }}>Press `del` on me, event will be handled by `Node1` and the current node</Leaf>
+      <Leaf style={{ border: '1px solid #ff0000' }}>
+        Press `del` on me, event will be handled by `Node1` and the current node
+      </Leaf>
     </Node>
     <Node style={{ border: '1px solid #ccc' }}>
       Node2

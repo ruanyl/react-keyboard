@@ -20,12 +20,16 @@ function getSequencesFromMap(hotKeyMap, hotKeyName) {
 export class HotKeys extends Component {
 
   static propTypes = {
-    active: PropTypes.bool,
     children: PropTypes.node,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
     keyMap: PropTypes.object,
     handlers: PropTypes.object,
+    focusOnMount: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    focusOnMount: true,
   }
 
   static contextTypes = {
@@ -41,6 +45,7 @@ export class HotKeys extends Component {
   constructor(props) {
     super(props)
     this.wrappedComponent = null
+    this.dom = null
   }
 
   getChildContext() {
@@ -55,8 +60,12 @@ export class HotKeys extends Component {
   }
 
   componentDidMount() {
-    this.mousetrap = new Mousetrap(findDOMNode(this))
+    this.dom = findDOMNode(this)
+    this.mousetrap = new Mousetrap(this.dom)
     this.updateHotKeys(true)
+    if (this.props.focusOnMount) {
+      this.dom.focus()
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -66,6 +75,10 @@ export class HotKeys extends Component {
   componentWillUnmount() {
     if (this.mousetrap) {
       this.mousetrap.reset()
+    }
+    const hotKeyParent = this.context.hotKeyParent
+    if (hotKeyParent && hotKeyParent.dom) {
+      hotKeyParent.dom.focus()
     }
   }
 
