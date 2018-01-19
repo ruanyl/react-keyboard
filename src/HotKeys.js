@@ -35,28 +35,38 @@ export class HotKeys extends Component {
   static contextTypes = {
     hotKeyParent: PropTypes.any,
     hotKeyMap: PropTypes.object,
+    hotKeyChain: PropTypes.array,
   }
 
   static childContextTypes = {
     hotKeyParent: PropTypes.any,
     hotKeyMap: PropTypes.object,
+    hotKeyChain: PropTypes.array,
   }
 
   constructor(props) {
     super(props)
     this.wrappedComponent = null
     this.dom = null
+    this.isLast = true
   }
 
   getChildContext() {
     return {
       hotKeyParent: this,
       hotKeyMap: this.hotKeyMap,
+      hotKeyChain: this.context.hotKeyChain ? this.context.hotKeyChain : [this],
     }
   }
 
   componentWillMount() {
     this.updateMap()
+    if (this.context.hotKeyChain && this.props.focusOnMount) {
+      this.context.hotKeyChain.push(this)
+    }
+    if (this.context.hotKeyParent) {
+      this.context.hotKeyParent.isLast = false
+    }
   }
 
   componentDidMount() {
@@ -64,7 +74,13 @@ export class HotKeys extends Component {
     this.mousetrap = new Mousetrap(this.dom)
     this.updateHotKeys(true)
     this.mounted = true
-    if (this.props.focusOnMount) {
+
+    let lastNodeInChain
+    if (this.context.hotKeyChain) {
+      lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
+    }
+
+    if (this.props.focusOnMount && (this === lastNodeInChain || this.isLast)) {
       this.dom.focus()
     }
   }
@@ -77,13 +93,22 @@ export class HotKeys extends Component {
     if (this.mousetrap) {
       this.mousetrap.reset()
     }
-    let hotKeyParent = this.context.hotKeyParent
+
     this.mounted = false
-    while (hotKeyParent && hotKeyParent.mounted === false) {
-      hotKeyParent = hotKeyParent.context.hotKeyParent
+    // remove the current component from hotKeyChain
+    let lastNodeInChain
+    if (this.context.hotKeyChain) {
+      this.context.hotKeyChain.splice(this.context.hotKeyChain.indexOf(this), 1)
+      lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
     }
-    if (hotKeyParent && hotKeyParent.dom) {
-      hotKeyParent.dom.focus()
+
+    if (this.context.hotKeyParent) {
+      this.context.hotKeyParent.isLast = true
+    }
+
+    // focus on last component in the chain
+    if (lastNodeInChain && lastNodeInChain.dom) {
+      lastNodeInChain.dom.focus()
     }
   }
 

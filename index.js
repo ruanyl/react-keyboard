@@ -65,14 +65,15 @@ Leaf.propTypes = {
 }
 
 render(
-  <HotKeys keyMap={keyMap}>
+  <HotKeys keyMap={keyMap} style={{ border: '1px solid #0000ff' }}>
+    Root wrapper
     <Node style={{ border: '1px solid #ccc' }}>
       Node1
       <Leaf style={{ border: '1px solid #ff0000' }}>
         Press `del` on me, event will be handled by `Node1` and the current node
       </Leaf>
     </Node>
-    <Node style={{ border: '1px solid #ccc' }}>
+    <Node focusOnMount={false} style={{ border: '1px solid #ccc' }}>
       Node2
       <Node style={{ border: '1px solid #00ff00' }}>Press `del` on me, event will be only handled by current node</Node>
     </Node>
