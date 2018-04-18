@@ -1,5 +1,4 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import * as React from 'react'
 import { findDOMNode } from 'react-dom'
 import Mousetrap from 'mousetrap'
 
@@ -17,16 +16,31 @@ function getSequencesFromMap(hotKeyMap, hotKeyName) {
   return [].concat(sequences)
 }
 
-export class HotKeys extends Component {
+interface HotKeysProps {
+  onFocus: React.FocusEventHandler<HTMLElement>;
+  onBlur: React.FocusEventHandler<HTMLElement>;
+  keyMap: KeyMap;
+  handlers: Handlers;
+  focusOnMount: boolean;
+}
 
-  static propTypes = {
-    children: PropTypes.node,
-    onFocus: PropTypes.func,
-    onBlur: PropTypes.func,
-    keyMap: PropTypes.object,
-    handlers: PropTypes.object,
-    focusOnMount: PropTypes.bool,
-  }
+interface KeyMap {
+  [key: string]: string[];
+}
+
+interface Handlers {
+  [key: string]: (e?: React.FocusEvent<HTMLElement>, s?: string) => boolean | void;
+}
+
+export class HotKeys extends React.Component<HotKeysProps, {}> {
+
+  // React.ReactElement
+  wrappedComponent: React.ReactNode
+  dom: HTMLElement | null
+  isLast: boolean
+  hotKeyMap: KeyMap
+  mousetrap: MousetrapInstance
+  mounted: boolean
 
   static defaultProps = {
     focusOnMount: true,
@@ -44,7 +58,7 @@ export class HotKeys extends Component {
     hotKeyChain: PropTypes.array,
   }
 
-  constructor(props) {
+  constructor(props: HotKeysProps) {
     super(props)
     this.wrappedComponent = null
     this.dom = null
@@ -70,8 +84,9 @@ export class HotKeys extends Component {
   }
 
   componentDidMount() {
-    this.dom = findDOMNode(this)
-    this.mousetrap = new Mousetrap(this.dom)
+    if (this.dom) {
+      this.mousetrap = new Mousetrap(this.dom as Element)
+    }
     this.updateHotKeys(true)
     this.mounted = true
 
@@ -80,12 +95,12 @@ export class HotKeys extends Component {
       lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
     }
 
-    if (this.props.focusOnMount && (this === lastNodeInChain || this.isLast)) {
+    if (this.props.focusOnMount && (this === lastNodeInChain || this.isLast) && this.dom) {
       this.dom.focus()
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: HotKeysProps) {
     this.updateHotKeys(false, prevProps)
   }
 
@@ -110,6 +125,10 @@ export class HotKeys extends Component {
     if (lastNodeInChain && lastNodeInChain.dom) {
       lastNodeInChain.dom.focus()
     }
+  }
+
+  setDom(node: HTMLElement) {
+    this.dom = node
   }
 
   onFocus = ({ ...args }) => {
@@ -145,9 +164,12 @@ export class HotKeys extends Component {
     return false
   }
 
-  updateHotKeys(force = false, prevProps = {}) {
-    const { handlers = {} } = this.props
-    const { handlers: prevHandlers = handlers } = prevProps
+  updateHotKeys(force: boolean = false, prevProps?: HotKeysProps) {
+    const handlers = this.props.handlers ? this.props.handlers : {}
+    let prevHandlers = handlers
+    if (prevProps && prevProps.handlers) {
+      prevHandlers = prevProps.handlers
+    }
 
     // Ensure map is up-to-date to begin with
     // We will only bother continuing if the map was actually updated
@@ -185,7 +207,7 @@ export class HotKeys extends Component {
     const { children, keyMap, handlers, focusOnMount, ...props } = this.props
 
     return (
-      <FocusTrap {...props} onRefUpdated={childNode => { this.wrappedComponent = childNode }} onFocus={this.onFocus} onBlur={this.onBlur}>
+      <FocusTrap ref={this.setDom} {...props} onRefUpdated={childNode => { this.wrappedComponent = childNode }} onFocus={this.onFocus} onBlur={this.onBlur}>
         {children}
       </FocusTrap>
     )
