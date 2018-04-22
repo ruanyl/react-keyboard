@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { findDOMNode } from 'react-dom'
-import Mousetrap from 'mousetrap'
+import * as Mousetrap from 'mousetrap'
+import * as PropTypes from 'prop-types'
 
-import isEqual from 'lodash/isEqual'
+import isEqual = require('lodash/isEqual')
 import { FocusTrap } from './FocusTrap'
 
-function getSequencesFromMap(hotKeyMap, hotKeyName) {
+function getSequencesFromMap(hotKeyMap: KeyMap, hotKeyName: string): Array<string | ObjectSequence> {
   const sequences = hotKeyMap[hotKeyName]
   // If no sequence is found with this name we assume
   // the user is passing a hard-coded sequence as a key
@@ -13,29 +14,50 @@ function getSequencesFromMap(hotKeyMap, hotKeyName) {
   if (!sequences) {
     return [hotKeyName]
   }
-  return [].concat(sequences)
+  const result: Array<string | ObjectSequence> = []
+  return result.concat(sequences)
 }
 
-interface HotKeysProps {
-  onFocus: React.FocusEventHandler<HTMLElement>;
-  onBlur: React.FocusEventHandler<HTMLElement>;
-  keyMap: KeyMap;
-  handlers: Handlers;
-  focusOnMount: boolean;
+export interface HotKeysProps {
+  keyMap?: KeyMap;
+  handlers?: Handlers;
+  onFocus?: React.FocusEventHandler<HTMLElement>;
+  onBlur?: React.FocusEventHandler<HTMLElement>;
+  focusOnMount?: boolean;
+  style?: React.CSSProperties;
 }
 
-interface KeyMap {
-  [key: string]: string[];
+export interface KeyMap {
+  [key: string]: string | string[] | ObjectSequence;
 }
 
-interface Handlers {
-  [key: string]: (e?: React.FocusEvent<HTMLElement>, s?: string) => boolean | void;
+export interface Handlers {
+  [key: string]: (e?: KeyboardEvent, s?: string) => boolean | void;
+}
+
+export interface Context {
+  hotKeyParent: React.ReactInstance | null;
+  hotKeyMap: KeyMap;
+  hotKeyChain: React.ReactInstance[];
+}
+
+export type KeyAction = 'keypress' | 'keydown' | 'keyup';
+
+export interface ObjectSequence {
+  sequence: string;
+  action: KeyAction;
+}
+
+export interface SequenceHandler {
+  callback: (event: KeyboardEvent, actualSeq: string) => void;
+  sequence: string | string[];
+  action?: KeyAction;
 }
 
 export class HotKeys extends React.Component<HotKeysProps, {}> {
 
   // React.ReactElement
-  wrappedComponent: React.ReactNode
+  wrappedComponent: Element | null
   dom: HTMLElement | null
   isLast: boolean
   hotKeyMap: KeyMap
@@ -65,7 +87,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     this.isLast = true
   }
 
-  getChildContext() {
+  getChildContext(): Context {
     return {
       hotKeyParent: this,
       hotKeyMap: this.hotKeyMap,
@@ -84,6 +106,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   }
 
   componentDidMount() {
+    this.dom = findDOMNode(this) as HTMLElement
     if (this.dom) {
       this.mousetrap = new Mousetrap(this.dom as Element)
     }
@@ -127,24 +150,16 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     }
   }
 
-  setDom(node: HTMLElement) {
-    this.dom = node
-  }
-
-  onFocus = ({ ...args }) => {
+  onFocus = (e: React.FocusEvent<HTMLElement>) => {
     if (this.props.onFocus) {
-      this.props.onFocus(...args)
+      this.props.onFocus(e)
     }
   }
 
-  onBlur = ({ ...args }) => {
+  onBlur = (e: React.FocusEvent<HTMLElement>) => {
     if (this.props.onBlur) {
-      this.props.onBlur(...args)
+      this.props.onBlur(e)
     }
-  }
-
-  getMap() {
-    return this.hotKeyMap
   }
 
   buildMap() {
@@ -177,21 +192,24 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       return
     }
 
-    const hotKeyMap = this.getMap()
-    let allSequenceHandlers = []
+    let allSequenceHandlers: SequenceHandler[] = []
 
-    // Group all our handlers by sequence
+    // Group all handlers by sequence
     Object.keys(handlers).forEach(hotKey => {
-      const sequences = getSequencesFromMap(hotKeyMap, hotKey)
+      const sequences = getSequencesFromMap(this.hotKeyMap, hotKey)
       const handler = handlers[hotKey]
 
       const sequenceHandlers = sequences.map(seq => {
-        const { action, sequence = seq } = seq
-        // follow event bubble rule of mousetrap(which is also the same as jquery)
-        // when handler return false: stop propagation
-        const callback = (event, actualSeq) => handler(event, actualSeq)
+        let action: KeyAction | undefined
+        let sequence: string | ObjectSequence
+        if (typeof seq === 'string') {
+          sequence = seq
+        } else {
+          action = seq.action
+          sequence = seq.sequence
+        }
 
-        return { callback, action, sequence }
+        return { callback: handler, action, sequence }
       })
       allSequenceHandlers = allSequenceHandlers.concat(sequenceHandlers)
     })
@@ -202,12 +220,16 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     })
   }
 
+  onChildRefUpdate = (node: Element) => {
+    this.wrappedComponent = node
+  }
+
   render() {
     /* eslint-disable no-unused-vars */
     const { children, keyMap, handlers, focusOnMount, ...props } = this.props
 
     return (
-      <FocusTrap ref={this.setDom} {...props} onRefUpdated={childNode => { this.wrappedComponent = childNode }} onFocus={this.onFocus} onBlur={this.onBlur}>
+      <FocusTrap {...props} onRefUpdated={this.onChildRefUpdate} onFocus={this.onFocus} onBlur={this.onBlur}>
         {children}
       </FocusTrap>
     )

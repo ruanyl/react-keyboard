@@ -1,25 +1,34 @@
 {
   "name": "react-keyboard",
-  "version": "0.4.0",
+  "version": "0.5.0-beta",
   "description": "A declarative library for handling hotkeys and focus within a React application",
-  "main": "lib",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "lint": "eslint ./src",
-    "build": "./node_modules/.bin/babel src --out-dir lib",
+    "build": "./node_modules/.bin/tsc --outDir lib --declaration",
     "prepublish": "npm run build"
   },
   "devDependencies": {
+    "express": "^4.16.3",
     "html-webpack-plugin": "^3.2.0",
+    "react": "^16.1.1",
+    "react-dom": "^16.1.1",
+    "ts-loader": "^4.2.0",
+    "typescript": "^2.8.3",
     "webpack": "^4.6.0",
-    "webpack-cli": "^2.0.14"
+    "webpack-cli": "^2.0.14",
+    "webpack-dev-middleware": "^3.1.2"
   },
   "dependencies": {
     "@types/lodash": "^4.14.107",
     "@types/mousetrap": "^1.6.0",
-    "@types/react": "^16.3.11",
+    "@types/prop-types": "^15.5.2",
+    "@types/react": "^16.1.0",
     "@types/react-dom": "^16.0.5",
     "lodash": "^4.17.4",
-    "mousetrap": "^1.5.2"
+    "mousetrap": "^1.5.2",
+    "prop-types": "^15.6.1"
   },
   "peerDependencies": {
     "react": ">= 0.14.0",

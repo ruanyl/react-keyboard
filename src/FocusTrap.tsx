@@ -1,20 +1,13 @@
 import * as React from 'react'
-import PropTypes from 'prop-types'
 
-export const FocusTrap = ({ component: Component, children, onRefUpdated, ...props }) =>
-  <Component ref={onRefUpdated} tabIndex="-1" {...props}>
+export interface FocusTrapProps {
+  component?: React.ReactType<any>;
+  onRefUpdated?: (node: Element | React.ReactElement<any>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLElement>) => void;
+  onBlur? : (e: React.FocusEvent<HTMLElement>) => void;
+}
+
+export const FocusTrap: React.SFC<FocusTrapProps> = ({ component: C = 'div', children, onRefUpdated = () => true, ...props }) =>
+  <C ref={onRefUpdated} tabIndex="-1" {...props}>
     {children}
-  </Component>
-
-FocusTrap.propTypes = {
-  onFocus: PropTypes.func,
-  onBlur: PropTypes.func,
-  onRefUpdated: PropTypes.func,
-  component: PropTypes.any,
-  children: PropTypes.node,
-}
-
-FocusTrap.defaultProps = {
-  component: 'div',
-  onRefUpdated: () => true,
-}
+  </C>

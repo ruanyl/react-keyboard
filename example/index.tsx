@@ -1,16 +1,27 @@
-import React, { Component } from 'react'
+import * as React from 'react'
 import { render } from 'react-dom'
 
-import { HotKeys } from './src/HotKeys'
+import { HotKeys, Handlers } from '../src'
 
 const keyMap = {
   cmdK: ['command+k'],
   deleteNode: ['del', 'backspace'],
 }
 
-class Node extends Component {
+interface NodeProps {
+  style: React.CSSProperties;
+  focusOnMount?: boolean;
+}
 
-  constructor(props) {
+interface NodeState {
+  show: boolean;
+}
+
+class Node extends React.Component<NodeProps, NodeState> {
+
+  handlers: Handlers
+
+  constructor(props: NodeProps) {
     super(props)
     this.handlers = {
       cmdK: this.cmdK,
@@ -21,13 +32,13 @@ class Node extends Component {
     }
   }
 
-  deleteNode = (e, seq) => {
+  deleteNode = (e: KeyboardEvent, seq: string) => {
     console.log(`delete node with: ${seq}`)
     this.setState({ show: false })
     return false
   }
 
-  cmdK = (e, seq) => {
+  cmdK = (e: KeyboardEvent, seq: string) => {
     console.log(`command + k with: ${seq}`)
   }
 
@@ -41,13 +52,13 @@ class Node extends Component {
   }
 }
 
-Node.propTypes = {
-  children: React.PropTypes.any,
-}
+interface LeafProps {
+  style: React.CSSProperties;
+};
 
-const Leaf = ({ children, ...props }) => {
+const Leaf: React.SFC<LeafProps> = props => {
   // delete handler bubbles to it's parent
-  const deleteNode = (e, seq) => {
+  const deleteNode = (e: KeyboardEvent, seq: string) => {
     console.log(`delete node with: ${seq}`)
   }
   const handlers = {
@@ -55,13 +66,9 @@ const Leaf = ({ children, ...props }) => {
   }
   return (
     <HotKeys handlers={handlers} {...props}>
-      { children }
+      { props.children }
     </HotKeys>
   )
-}
-
-Leaf.propTypes = {
-  children: React.PropTypes.any,
 }
 
 render(
