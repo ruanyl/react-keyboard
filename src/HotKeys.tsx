@@ -3,7 +3,7 @@ import { findDOMNode } from 'react-dom'
 import * as Mousetrap from 'mousetrap'
 import * as PropTypes from 'prop-types'
 
-import isEqual = require('lodash/isEqual')
+import isEqual = require('lodash.isequal')
 import { FocusTrap } from './FocusTrap'
 
 function getSequencesFromMap(hotKeyMap: KeyMap, hotKeyName: string): Array<string | ObjectSequence> {
