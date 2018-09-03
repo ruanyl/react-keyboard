@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from 'react-dom'
 
-import { HotKeys, Handlers, KeyMap } from '../src/HotKeys'
+import HotKeys, { Handlers, KeyMap } from '../src/HotKeys'
 
 const keyMap = {
   cmdK: ['command+k'],

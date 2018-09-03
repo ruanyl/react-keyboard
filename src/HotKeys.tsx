@@ -9,8 +9,8 @@ type KeysWithAction = {
   keys: Keys
   action?: string
 }
-type Sequence = Keys | KeysWithAction
-type Callback = (e: KeyboardEvent, combo: string) => any
+export type Sequence = Keys | KeysWithAction
+export type Callback = (e: KeyboardEvent, combo: string) => any
 interface SequenceHandler {
   keys: string | string[]
   callback: Callback
@@ -229,3 +229,4 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     )
   }
 }
+export default HotKeys
