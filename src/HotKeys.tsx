@@ -99,9 +99,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     if (this.context.hotKeyChain && this.props.focusOnMount) {
       this.context.hotKeyChain.push(this)
     }
-    if (this.context.hotKeyParent) {
-      this.context.hotKeyParent.isLast = false
-    }
   }
 
   componentDidMount() {
@@ -117,7 +114,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
     }
 
-    if (this.props.focusOnMount && (this === lastNodeInChain || this.isLast) && this.dom) {
+    if (this.props.focusOnMount && this === lastNodeInChain && this.dom) {
       this.dom.focus()
     }
   }
@@ -139,12 +136,11 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
     }
 
-    if (this.context.hotKeyParent) {
-      this.context.hotKeyParent.isLast = true
-    }
-
-    // focus on last component in the chain
-    if (lastNodeInChain && lastNodeInChain.dom) {
+    // if current node has parent, and parent node is not root. focus on parent
+    // otherwise, focus on the last node in the chain
+    if (this.context.hotKeyParent && this.context.hotKeyParent.hotKeyParent && this.context.hotKeyParent.dom) {
+      this.context.hotKeyParent.dom.focus()
+    } else if (lastNodeInChain && lastNodeInChain.dom) {
       lastNodeInChain.dom.focus()
     }
   }
