@@ -1,7 +1,7 @@
-import * as React from 'react'
+import React from 'react'
 import { render } from 'react-dom'
 
-import { HotKeys, Handlers } from '../src'
+import { HotKeys, Handlers, KeyMap } from '../src/HotKeys'
 
 const keyMap = {
   cmdK: ['command+k'],
@@ -9,15 +9,12 @@ const keyMap = {
 }
 
 interface NodeProps {
-  style: React.CSSProperties;
-  focusOnMount?: boolean;
+  style: React.CSSProperties
+  children: React.ReactNode
+  focusOnMount?: boolean
 }
 
-interface NodeState {
-  show: boolean;
-}
-
-class Node extends React.Component<NodeProps, NodeState> {
+class Node extends React.Component<NodeProps, {show: boolean}> {
 
   handlers: Handlers
 
@@ -52,11 +49,7 @@ class Node extends React.Component<NodeProps, NodeState> {
   }
 }
 
-interface LeafProps {
-  style: React.CSSProperties;
-};
-
-const Leaf: React.SFC<LeafProps> = props => {
+const Leaf: React.SFC<{children: React.ReactNode, style: React.CSSProperties}> = ({ children, ...props }) => {
   // delete handler bubbles to it's parent
   const deleteNode = (e: KeyboardEvent, seq: string) => {
     console.log(`delete node with: ${seq}`)
@@ -66,7 +59,7 @@ const Leaf: React.SFC<LeafProps> = props => {
   }
   return (
     <HotKeys handlers={handlers} {...props}>
-      { props.children }
+      { children }
     </HotKeys>
   )
 }
@@ -80,7 +73,7 @@ render(
         Press `del` on me, event will be handled by `Node1` and the current node
       </Leaf>
     </Node>
-    <Node focusOnMount={false} style={{ border: '1px solid #ccc' }}>
+    <Node style={{ border: '1px solid #ccc' }}>
       Node2
       <Node style={{ border: '1px solid #00ff00' }}>Press `del` on me, event will be only handled by current node</Node>
     </Node>

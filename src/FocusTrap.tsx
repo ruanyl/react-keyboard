@@ -1,13 +1,26 @@
-import * as React from 'react'
+import React from 'react'
 
-export interface FocusTrapProps {
-  component?: React.ReactType<any>;
-  onRefUpdated?: (node: Element | React.ReactElement<any>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLElement>) => void;
-  onBlur? : (e: React.FocusEvent<HTMLElement>) => void;
+interface FocusTrapProps {
+  children: React.ReactNode
+  onRefUpdated: (ref: React.ReactInstance) => any
+  onFocus: React.FocusEventHandler
+  onBlur: React.FocusEventHandler
 }
 
-export const FocusTrap: React.SFC<FocusTrapProps> = ({ component: C = 'div', children, onRefUpdated = () => true, ...props }) =>
-  <C ref={onRefUpdated} tabIndex="-1" {...props}>
-    {children}
-  </C>
+export class FocusTrap extends React.Component<FocusTrapProps, {}> {
+
+  focusTrap = (ref: React.ReactInstance | null) => {
+    if (ref) {
+      this.props.onRefUpdated(ref)
+    }
+  }
+
+  render() {
+    const { children, onRefUpdated, ...props } = this.props
+    return (
+      <div ref={this.focusTrap} tabIndex={-1} {...props}>
+        {children}
+      </div>
+    )
+  }
+}
