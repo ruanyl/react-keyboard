@@ -215,7 +215,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   }
 
   render() {
-    /* eslint-disable no-unused-vars */
     const { children, keyMap, handlers, focusOnMount, ...props } = this.props
 
     return (

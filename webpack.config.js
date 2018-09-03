@@ -2,7 +2,6 @@ const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-/* eslint-disable max-len */
 module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
