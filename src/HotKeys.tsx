@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Mousetrap from 'mousetrap'
-import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash.isequal'
 import { findDOMNode } from 'react-dom'
 
 type Keys = string | string[]

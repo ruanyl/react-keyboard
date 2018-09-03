@@ -1,7 +1,7 @@
 {
-  "name": "react-boilerplate-ts",
-  "version": "1.0.0",
-  "description": "typescript react starter",
+  "name": "react-keyboard",
+  "version": "1.0.0-beta1",
+  "description": "A declarative library for handling hotkeys and focus within a React application",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
@@ -31,12 +31,12 @@
   "dependencies": {
     "@types/enzyme": "^3.1.10",
     "@types/jest": "^22.2.3",
-    "@types/lodash": "^4.14.116",
+    "@types/lodash.isequal": "^4.5.3",
     "@types/mousetrap": "^1.6.0",
     "@types/prop-types": "^15.5.5",
     "@types/react": "^16.4.6",
     "@types/react-dom": "^16.0.7",
-    "lodash": "^4.17.10",
+    "lodash.isequal": "^4.5.0",
     "mousetrap": "^1.6.2",
     "prop-types": "^15.6.2"
   },
@@ -48,12 +48,14 @@
   "license": "MIT",
   "keywords": [
     "react-component",
+    "hotkeys",
+    "focus",
     "react"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ruanyl/react-boilerplate-ts.git"
+    "url": "https://github.com/ruanyl/react-keyboard.git"
   },
-  "homepage": "https://github.com/ruanyl/react-boilerplate-ts",
-  "bugs": "https://github.com/ruanyl/react-boilerplate-ts/issues"
+  "homepage": "https://github.com/ruanyl/react-keyboard",
+  "bugs": "https://github.com/ruanyl/react-keyboard/issues"
 }
