@@ -19,8 +19,8 @@ interface SequenceHandler {
 
 interface HotKeyContext {
   hotKeyParent: HotKeys
-  hotKeyMap: KeyMap,
-  hotKeyChain: HotKeys[],
+  hotKeyMap: KeyMap
+  hotKeyChain: HotKeys[]
 }
 
 export interface KeyMap {
