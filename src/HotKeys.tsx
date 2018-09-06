@@ -4,15 +4,15 @@ import Mousetrap from 'mousetrap'
 import isEqual from 'lodash.isequal'
 import { findDOMNode } from 'react-dom'
 
-type Keys = string | string[]
-type KeysWithAction = {
-  keys: Keys
+type Combo = string | string[]
+type ComboWithAction = {
+  combo: Combo
   action?: string
 }
-export type Sequence = Keys | KeysWithAction
+export type Sequence = Combo | ComboWithAction
 export type Callback = (e: KeyboardEvent, combo: string) => any
 interface SequenceHandler {
-  keys: string | string[]
+  combo: string | string[]
   callback: Callback
   action?: string
 }
@@ -33,7 +33,7 @@ export interface Handlers {
 
 function getSequencesFromMap(hotKeyMap: KeyMap, hotKeyName: string) {
   const sequences = hotKeyMap[hotKeyName]
-  const result: Array<string | string[] | KeysWithAction> = []
+  const result: Array<string | string[] | ComboWithAction> = []
   // If no sequence is found with this name we assume
   // the user is passing a hard-coded sequence as a key
   // for example: ctrl+q
@@ -46,7 +46,6 @@ function getSequencesFromMap(hotKeyMap: KeyMap, hotKeyName: string) {
 interface HotKeysProps {
   children: React.ReactNode
   keyMap?: KeyMap
-  focusOnMount?: boolean
   onFocus?: React.FocusEventHandler
   onBlur?: React.FocusEventHandler
   handlers?: Handlers
@@ -55,10 +54,6 @@ interface HotKeysProps {
 }
 
 export class HotKeys extends React.Component<HotKeysProps, {}> {
-
-  static defaultProps = {
-    focusOnMount: true,
-  }
 
   static contextTypes = {
     hotKeyParent: PropTypes.any,
@@ -74,7 +69,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
 
   wrappedComponent: React.ReactInstance | null
   dom: HTMLElement | null
-  isLast: boolean
   mounted: boolean
   hotKeyMap: KeyMap
   mousetrap: MousetrapInstance
@@ -83,7 +77,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     super(props)
     this.wrappedComponent = null
     this.dom = null
-    this.isLast = true
   }
 
   getChildContext(): HotKeyContext {
@@ -96,7 +89,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
 
   componentWillMount() {
     this.updateMap()
-    if (this.context.hotKeyChain && this.props.focusOnMount) {
+    if (this.context.hotKeyChain) {
       this.context.hotKeyChain.push(this)
     }
   }
@@ -114,7 +107,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
     }
 
-    if (this.props.focusOnMount && this === lastNodeInChain && this.dom) {
+    if (this === lastNodeInChain && this.dom) {
       this.dom.focus()
     }
   }
@@ -185,17 +178,17 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       const handler = handlers[hotKey]
 
       const sequenceHandlers: Array<SequenceHandler | undefined> = sequences.map(seq => {
-        let keys, action
+        let combo, action
         if (typeof seq === 'string' || Array.isArray(seq)) {
-          keys = seq
+          combo = seq
         } else if (seq) {
-          keys = seq.keys
+          combo = seq.combo
           action = seq.action
         } else {
           return
         }
 
-        return { callback: handler, action, keys }
+        return { callback: handler, action, combo }
       })
       allSequenceHandlers = allSequenceHandlers.concat(sequenceHandlers)
     })
@@ -203,7 +196,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     this.mousetrap.reset()
     allSequenceHandlers.forEach(handler => {
       if (handler) {
-        this.mousetrap.bind(handler.keys, handler.callback, handler.action)
+        this.mousetrap.bind(handler.combo, handler.callback, handler.action)
       }
     })
   }
@@ -215,7 +208,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   }
 
   render() {
-    const { children, keyMap, handlers, focusOnMount, ...props } = this.props
+    const { children, keyMap, handlers, ...props } = this.props
 
     return (
       <div {...props} ref={this.focusTrap} tabIndex={-1}>

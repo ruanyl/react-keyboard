@@ -4,7 +4,9 @@ import { render } from 'react-dom'
 import HotKeys, { Handlers, KeyMap } from '../src/HotKeys'
 
 const keyMap = {
-  cmdK: ['command+k'],
+  cmdK: {
+    combo: 'command+k',
+  },
   deleteNode: ['del', 'backspace'],
 }
 
@@ -37,6 +39,7 @@ class Node extends React.Component<NodeProps, {show: boolean}> {
 
   cmdK = (e: KeyboardEvent, seq: string) => {
     console.log(`command + k with: ${seq}`)
+    return false
   }
 
   render() {
