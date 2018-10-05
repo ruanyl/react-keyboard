@@ -43,7 +43,7 @@ function getSequencesFromMap(hotKeyMap: KeyMap, hotKeyName: string) {
   return result.concat(sequences)
 }
 
-interface HotKeysProps {
+interface HotKeysProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode
   keyMap?: KeyMap
   onFocus?: React.FocusEventHandler
