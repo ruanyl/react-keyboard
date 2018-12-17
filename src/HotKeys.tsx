@@ -51,6 +51,7 @@ interface HotKeysProps extends React.HTMLAttributes<HTMLElement> {
   handlers?: Handlers
   style?: React.CSSProperties
   className?: string
+  focusOnMount?: boolean
 }
 
 export class HotKeys extends React.Component<HotKeysProps, {}> {
@@ -65,6 +66,10 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     hotKeyParent: PropTypes.any,
     hotKeyMap: PropTypes.object,
     hotKeyChain: PropTypes.array,
+  }
+
+  static defaultProps = {
+    focusOnMount: true
   }
 
   wrappedComponent: React.ReactInstance | null
@@ -107,7 +112,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
     }
 
-    if (this === lastNodeInChain && this.dom) {
+    if (this.props.focusOnMount && this === lastNodeInChain && this.dom) {
       this.dom.focus()
     }
   }
