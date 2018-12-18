@@ -143,10 +143,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     }
   }
 
-  getMap() {
-    return this.hotKeyMap
-  }
-
   buildMap() {
     const parentMap = this.context.hotKeyMap || {}
     const thisMap = this.props.keyMap || {}
@@ -174,12 +170,11 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       return
     }
 
-    const hotKeyMap = this.getMap()
     let allSequenceHandlers: Array<SequenceHandler | undefined> = []
 
     // Group all our handlers by sequence
     Object.keys(handlers).forEach(hotKey => {
-      const sequences = getSequencesFromMap(hotKeyMap, hotKey)
+      const sequences = getSequencesFromMap(this.hotKeyMap, hotKey)
       const handler = handlers[hotKey]
 
       const sequenceHandlers: Array<SequenceHandler | undefined> = sequences.map(seq => {
