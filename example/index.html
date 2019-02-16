@@ -2,6 +2,56 @@
 <html>
   <head>
     <title>Counter</title>
+    <style type="text/css" media="screen">
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      *:focus {
+        outline: 4px dotted #ff0000;
+      }
+      html {
+        height: 100%;
+        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        font-size: 24px;
+      }
+      body {
+        height: 100%;
+        padding: 10px;
+      }
+      #root {
+        height: 100%;
+      }
+      .header {
+        border: 2px solid #aaa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100px;
+      }
+      .container {
+        height: 100%;
+        border: 2px solid #aaa;
+      }
+      .content {
+        display: flex;
+        height: calc(100% - 100px);
+      }
+      .left, .right {
+        border: 2px solid #aaa;
+        width: 50%;
+        height: 100%;
+      }
+      .item {
+        display: flex;
+        padding-left: 10px;
+        padding-right: 10px;
+        align-items: center;
+        border-bottom: 2px solid #aaa;
+        height: 50px;
+        justify-content: space-between;
+      }
+    </style>
   </head>
   <body>
     <div id="root">

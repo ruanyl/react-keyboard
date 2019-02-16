@@ -56,7 +56,7 @@ interface HotKeysProps extends React.HTMLAttributes<HTMLElement> {
   className?: string
   focusOnMount?: boolean
   navigator?: {
-    [key: string]: string | string[] | Navigator
+    [key: string]: string | string[] | Navigator | null
   }
 }
 
@@ -253,7 +253,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   }
 
   render() {
-    const { children, keyMap, handlers, focusOnMount, ...props } = this.props
+    const { navigator, children, keyMap, handlers, focusOnMount, ...props } = this.props
 
     return (
       <div {...props} ref={this.wrappedComponent} tabIndex={-1}>

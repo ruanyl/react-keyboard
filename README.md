@@ -1,6 +1,5 @@
 ## React HotKeys
 -------------
-This is an opinionated refactor of [react-hotkeys](https://github.com/chrisui/react-hotkeys), please use it at your own risk
 
 ## run the example:
 ```

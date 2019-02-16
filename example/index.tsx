@@ -12,94 +12,97 @@ const keyMap = {
   right: 'right',
   up: 'up',
   down: 'down',
+  space: 'space',
 }
 
 interface NodeProps {
-  style: React.CSSProperties
-  children: React.ReactNode
+  style?: React.CSSProperties
   focusOnMount?: boolean
   name?: string
-  navigator?: {
-    [key: string]: string | string []
-  }
+  className?: string;
+  data: string[];
 }
 
-class Node extends React.Component<NodeProps, {show: boolean}> {
+class Node extends React.Component<NodeProps, {show: boolean, data: string[], selected: number, selections: number[]}> {
 
   handlers: Handlers
 
   constructor(props: NodeProps) {
     super(props)
     this.handlers = {
-      cmdK: this.cmdK,
-      deleteNode: this.deleteNode,
+      up: this.up,
+      down: this.down,
+      space: this.space,
     }
     this.state = {
       show: true,
+      data: props.data,
+      selected: -1,
+      selections: []
     }
   }
 
-  deleteNode = (e: KeyboardEvent, seq: string) => {
-    console.log(`delete node with: ${seq}`)
-    this.setState({ show: false })
-    return false
+  up = (e: KeyboardEvent, seq: string) => {
+    this.setState({ selected: this.state.selected - 1 >= 0 ? this.state.selected - 1 : 0 })
   }
 
-  cmdK = (e: KeyboardEvent, seq: string) => {
-    console.log(`command + k with: ${seq}`)
-    return false
+  down = (e: KeyboardEvent, seq: string) => {
+    this.setState({ selected: this.state.selected + 1 >= this.state.data.length ? this.state.selected : this.state.selected + 1 })
+  }
+
+  space = (e: KeyboardEvent, seq: string) => {
+    if (!this.state.selections.includes(this.state.selected)) {
+      this.setState({ selections: this.state.selections.concat(this.state.selected) })
+    } else {
+      this.setState({ selections: this.state.selections.filter(s => s !== this.state.selected) })
+    }
+    return false;
   }
 
   render() {
     return (
-      this.state.show ?
-        <HotKeys handlers={this.handlers} {...this.props}>
-          { this.props.children }
-        </HotKeys> : null
+      <HotKeys
+        {...this.props}
+        handlers={this.handlers}
+        navigator={{
+          up: () => this.state.selected > 0 ? null : 'header',
+          left: 'left',
+          right: 'right',
+        }}
+      >
+        {
+          this.props.data.map((d, i) => {
+            const itemSelected = this.state.selected === i
+            return (
+              <div key={d} className="item" style={{ backgroundColor: itemSelected ? '#aaffcc' : '#fff' }}>
+                <span>{d}{itemSelected ? '(try to press: /space/ and arrow keys)' : ''}</span>
+                {this.state.selections.includes(i) ? <span>✅</span> : null}
+              </div>
+            )
+          })
+        }
+      </HotKeys>
     )
   }
 }
 
-const Leaf: React.SFC<{children: React.ReactNode, style: React.CSSProperties}> = ({ children, ...props }) => {
-  // delete handler bubbles to it's parent
-  const deleteNode = (e: KeyboardEvent, seq: string) => {
-    console.log(`delete node with: ${seq}`)
-  }
-  const handlers = {
-    deleteNode,
-  }
-  return (
-    <HotKeys handlers={handlers} {...props}>
-      { children }
-    </HotKeys>
-  )
-}
-
 render(
-  <HotKeys keyMap={keyMap} style={{ border: '1px solid #0000ff' }}>
-    Root wrapper
-    <Node
-      name="n1"
-      style={{ border: '1px solid #ccc' }}
-      navigator={{ down: ['n2-child', 'n2'] }}
-    >
-      Node1
-      <Leaf style={{ border: '1px solid #ff0000' }}>
-        Press `del` on me, event will be handled by `Node1` and the current node
-      </Leaf>
-    </Node>
-    <Node
-      name="n2"
-      style={{ border: '1px solid #ccc' }}
-      navigator={{ up: 'n1', down: 'n2-child' }}
-    >
-      Node2
+  <HotKeys keyMap={keyMap} className="container">
+    <HotKeys name="header" className="header" navigator={{ down: 'left' }}>
+      This is a demo of react-keyboard (use arrow key to navigate between panels)
+    </HotKeys>
+    <div className="content">
       <Node
-        name="n2-child"
-        style={{ border: '1px solid #00ff00' }}
-        navigator={{ up: 'n2' }}
-      >Press `del` on me, event will be only handled by current node</Node>
-    </Node>
+        name="left"
+        className="left"
+        data={[ 'Apple', 'Orange', 'Rice', 'Banana' ]}
+      />
+      <Node
+        name="right"
+        className="right"
+        data={[ 'Apple', 'Orange', 'Rice', 'Banana' ]}
+      />
+    </div>
   </HotKeys>,
   document.getElementById('root')
 )

@@ -1,6 +1,6 @@
 {
   "name": "react-keyboard",
-  "version": "1.0.0-beta4",
+  "version": "1.0.0-beta6",
   "description": "A declarative library for handling hotkeys and focus within a React application",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
