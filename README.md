@@ -3,6 +3,11 @@
 
 ![react-keyboard](https://user-images.githubusercontent.com/486382/52902222-c2c6f980-3216-11e9-993a-b1d5b7f0afa5.gif)
 
+## Install
+```
+npm install react-keyboard
+```
+
 ## run the example:
 ```
 node server.js
@@ -10,93 +15,115 @@ node server.js
 
 ## Quick Example
 
-```javascript
-import {HotKeys} from 'react-keyboard';
+```typescript
+import React from 'react'
+import HotKeys, { Handlers } from 'react-keyboard'
+import { render } from 'react-dom'
 
-// Simple "name:key sequence/s" to create a hotkey map
 const keyMap = {
-  cmdK: ['command+k'],
+  cmdK: {
+    combo: 'command+k',
+  },
   deleteNode: ['del', 'backspace'],
+  left: 'left',
+  right: 'right',
+  up: 'up',
+  down: 'down',
+  space: 'space',
 }
 
-// render the component
+interface NodeProps {
+  style?: React.CSSProperties
+  focusOnMount?: boolean
+  name?: string
+  className?: string;
+  data: string[];
+}
+
+class Node extends React.Component<NodeProps, {show: boolean, data: string[], selected: number, selections: number[]}> {
+
+  handlers: Handlers
+
+  constructor(props: NodeProps) {
+    super(props)
+    this.handlers = {
+      up: this.up,
+      down: this.down,
+      space: this.space,
+    }
+    this.state = {
+      show: true,
+      data: props.data,
+      selected: -1,
+      selections: []
+    }
+  }
+
+  up = (e: KeyboardEvent, seq: string) => {
+    this.setState({ selected: this.state.selected - 1 >= 0 ? this.state.selected - 1 : 0 })
+  }
+
+  down = (e: KeyboardEvent, seq: string) => {
+    this.setState({ selected: this.state.selected + 1 >= this.state.data.length ? this.state.selected : this.state.selected + 1 })
+  }
+
+  space = (e: KeyboardEvent, seq: string) => {
+    if (!this.state.selections.includes(this.state.selected)) {
+      this.setState({ selections: this.state.selections.concat(this.state.selected) })
+    } else {
+      this.setState({ selections: this.state.selections.filter(s => s !== this.state.selected) })
+    }
+    return false;
+  }
+
+  render() {
+    return (
+      <HotKeys
+        {...this.props}
+        handlers={this.handlers}
+        navigator={{
+          up: () => this.state.selected > 0 ? null : 'header',
+          left: 'left',
+          right: 'right',
+        }}
+      >
+        {
+          this.props.data.map((d, i) => {
+            const itemSelected = this.state.selected === i
+            return (
+              <div key={d} className="item" style={{ backgroundColor: itemSelected ? '#aaffcc' : '#fff' }}>
+                <span>{d}{itemSelected ? '(try to press: /space/ and arrow keys)' : ''}</span>
+                {this.state.selections.includes(i) ? <span>✅</span> : null}
+              </div>
+            )
+          })
+        }
+      </HotKeys>
+    )
+  }
+}
+
 render(
-  <HotKeys keyMap={keyMap}>
-    <Node style={{ border: '1px solid #ccc' }}>
-      Node1
-      <Leaf style={{ border: '1px solid #ff0000' }}>Press `del` on me, event will be handled by `Node1` and the current node</Leaf>
-    </Node>
-    <Node style={{ border: '1px solid #ccc' }}>
-      Node2
-      <Node style={{ border: '1px solid #00ff00' }}>Press `del` on me, event will be only handled by current node</Node>
-    </Node>
+  <HotKeys keyMap={keyMap} className="container">
+    <HotKeys name="header" className="header" navigator={{ down: 'left' }}>
+      This is a demo of react-keyboard (use arrow key to navigate between panels)
+    </HotKeys>
+    <div className="content">
+      <Node
+        name="left"
+        className="left"
+        data={[ 'Apple', 'Orange', 'Rice', 'Banana' ]}
+      />
+      <Node
+        name="right"
+        className="right"
+        data={[ 'Apple', 'Orange', 'Rice', 'Banana' ]}
+      />
+    </div>
   </HotKeys>,
   document.getElementById('root')
 )
-
-const Node = ({ children, ...props }) => {
-  const deleteNode = (e, seq) => {
-    console.log(`delete node with: ${seq}`)
-    return false
-  }
-  const cmdK = (e, seq) => {
-    console.log(`snap left with: ${seq}`)
-  }
-  const handlers = {
-    cmdK,
-    deleteNode,
-  }
-  return (
-    <HotKeys handlers={handlers} {...props}>
-      { children }
-    </HotKeys>
-  )
-}
-
-const Leaf = ({ children, ...props }) => {
-  // delete handler bubbles to it's parent
-  const deleteNode = (e, seq) => {
-    console.log(`delete node with: ${seq}`)
-  }
-  const handlers = {
-    deleteNode,
-  }
-  return (
-    <HotKeys handlers={handlers} {...props}>
-      { children }
-    </HotKeys>
-  )
-}
 ```
-
-## what has been changed compare to react-hotkeys
-The main changes here are to allow event to bubble:
-
-`react-hotkeys` don't allow parent to handle the event if child has the a same handler. This behaviour works perfectly unless you need to do optional event handle.
-For example, `onCancel` event should be handled in a certain condition in a child component other wise parent will handle it. However, `react-hotkeys` won't work in this case.
-
-`react-keyboard` uses `mousetrap`. It respects the way how [mousetrap](https://github.com/ccampbell/mousetrap) handle event bubble:
-
-> if event handler returns true, event bubbles to parent, if event handler returns false, it will not bubble
-
-By default, the bubbling behaviour of `react-keyboard` is exactly the same as `mousetrap`: event bubbles up by default. But if the event handler returns `false`, then event will stop bubbling.
-
-When handler returns `false`, internally `mousetrap` will do:
-
-```
-e.stopPropagation()
-e.preventDefault()
-```
-
-If you don't want to `preventDefault`, simply do not `return false` and add `e.stopPropagation()` in your handler.
-
-## Install
-```
-npm install react-keyboard
-```
-
-## Why not fork?
-Write in `ES6 extends Component` manner and the principle changed.
 
 ## License
 MIT
