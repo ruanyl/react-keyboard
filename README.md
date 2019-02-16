@@ -1,6 +1,8 @@
 ## React HotKeys
 -------------
 
+![react-keyboard](https://user-images.githubusercontent.com/486382/52902222-c2c6f980-3216-11e9-993a-b1d5b7f0afa5.gif)
+
 ## run the example:
 ```
 node server.js
