@@ -1,7 +1,7 @@
 ## React HotKeys
 -------------
 
-![react-keyboard](https://user-images.githubusercontent.com/486382/52902222-c2c6f980-3216-11e9-993a-b1d5b7f0afa5.gif)
+![react-keyboard](https://user-images.githubusercontent.com/486382/52902608-e9d3fa00-321b-11e9-8138-35ff1dcf6c3c.gif)
 
 ## Install
 ```
