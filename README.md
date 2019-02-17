@@ -2,6 +2,8 @@
 
 react-keyboard is wrap of mousetrap.js in React, it offers keyboard shortcuts handling in React application.
 
+![react-keyboard](https://user-images.githubusercontent.com/486382/52902608-e9d3fa00-321b-11e9-8138-35ff1dcf6c3c.gif)
+
 ## Getting started
 
 ### Install
