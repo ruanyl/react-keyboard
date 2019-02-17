@@ -1,129 +1,74 @@
-## React HotKeys
--------------
+# Introduction
 
-![react-keyboard](https://user-images.githubusercontent.com/486382/52902608-e9d3fa00-321b-11e9-8138-35ff1dcf6c3c.gif)
+react-keyboard is wrap of mousetrap.js in React, it offers keyboard shortcuts handling in React application.
 
-## Install
-```
+## Getting started
+
+### Install
+
+```bash
 npm install react-keyboard
 ```
 
-## run the example:
-```
-node server.js
-```
+### Usage Example <a id="usage-example"></a>
 
-## Quick Example
+#### Defined keyMap
 
 ```typescript
-import React from 'react'
-import HotKeys, { Handlers } from 'react-keyboard'
-import { render } from 'react-dom'
-
 const keyMap = {
   cmdK: {
     combo: 'command+k',
+    eventType: 'keyup',
   },
   deleteNode: ['del', 'backspace'],
   left: 'left',
-  right: 'right',
-  up: 'up',
-  down: 'down',
-  space: 'space',
 }
+```
 
-interface NodeProps {
-  style?: React.CSSProperties
-  focusOnMount?: boolean
-  name?: string
-  className?: string;
-  data: string[];
-}
+A KeyMap is an object which value is the key sequence. The key sequence can be:
 
-class Node extends React.Component<NodeProps, {show: boolean, data: string[], selected: number, selections: number[]}> {
+1. `string` which can be a single key  `left` or combination of keys `command+k`
+2. `array` which is an array of multiple key commands: `['del', 'backspace']`
+3. `object` only use an object if you need to listen to specific event type: `{combo: 'command+k', eventType: 'keyup'}`
 
-  handlers: Handlers
+#### Use HotKeys Component
 
-  constructor(props: NodeProps) {
-    super(props)
-    this.handlers = {
-      up: this.up,
-      down: this.down,
-      space: this.space,
-    }
-    this.state = {
-      show: true,
-      data: props.data,
-      selected: -1,
-      selections: []
-    }
+```typescript
+import { HotKeys, Handlers } from 'react-keyboard'
+
+export class MyHotKeys extends React.Component {
+
+  showDocumentation = () => {
+    console.log('show doc')
+  }
+  deleteNode = () => {
+    console.log('deleted')
+  }
+  moveLeft = () => {
+    console.log('move left')
+  }
+  showChildDocumentation = () => {
+    console.log('show child doc')
   }
 
-  up = (e: KeyboardEvent, seq: string) => {
-    this.setState({ selected: this.state.selected - 1 >= 0 ? this.state.selected - 1 : 0 })
+  handlersParent = {
+    cmdK: this.showDocumentation,
+    deleteNode: this.deleteNode,
   }
 
-  down = (e: KeyboardEvent, seq: string) => {
-    this.setState({ selected: this.state.selected + 1 >= this.state.data.length ? this.state.selected : this.state.selected + 1 })
-  }
-
-  space = (e: KeyboardEvent, seq: string) => {
-    if (!this.state.selections.includes(this.state.selected)) {
-      this.setState({ selections: this.state.selections.concat(this.state.selected) })
-    } else {
-      this.setState({ selections: this.state.selections.filter(s => s !== this.state.selected) })
-    }
-    return false;
+  handlersChild = {
+    cmdK: this.showChildDocumentation,
+    left: this.moveLeft,
   }
 
   render() {
-    return (
-      <HotKeys
-        {...this.props}
-        handlers={this.handlers}
-        navigator={{
-          up: () => this.state.selected > 0 ? null : 'header',
-          left: 'left',
-          right: 'right',
-        }}
-      >
-        {
-          this.props.data.map((d, i) => {
-            const itemSelected = this.state.selected === i
-            return (
-              <div key={d} className="item" style={{ backgroundColor: itemSelected ? '#aaffcc' : '#fff' }}>
-                <span>{d}{itemSelected ? '(try to press: /space/ and arrow keys)' : ''}</span>
-                {this.state.selections.includes(i) ? <span>✅</span> : null}
-              </div>
-            )
-          })
-        }
-      </HotKeys>
-    )
+    return <HotKeys keyMap={keyMap} handlers={this.handlersParent}>
+      <span>this is my hotkeys</span>
+      <HotKeys handlers={this.handlersChild}>A child</HotKeys>
+    </HotKeys>
   }
 }
-
-render(
-  <HotKeys keyMap={keyMap} className="container">
-    <HotKeys name="header" className="header" navigator={{ down: 'left' }}>
-      This is a demo of react-keyboard (use arrow key to navigate between panels)
-    </HotKeys>
-    <div className="content">
-      <Node
-        name="left"
-        className="left"
-        data={[ 'Apple', 'Orange', 'Rice', 'Banana' ]}
-      />
-      <Node
-        name="right"
-        className="right"
-        data={[ 'Apple', 'Orange', 'Rice', 'Banana' ]}
-      />
-    </div>
-  </HotKeys>,
-  document.getElementById('root')
-)
 ```
 
-## License
-MIT
+Note: Child HotKeys components can inherit `keyMap` from their parents. You don't necessarily define `keyMap` for each child if parents already have the shortcuts you need.
+
