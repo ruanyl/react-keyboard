@@ -43,7 +43,7 @@ class Node extends React.Component<NodeProps, {show: boolean, data: string[], se
   }
 
   up = (e: KeyboardEvent, seq: string) => {
-    this.setState({ selected: this.state.selected - 1 >= 0 ? this.state.selected - 1 : 0 })
+    this.setState({ selected: this.state.selected - 1 < 0 ? this.state.selected : this.state.selected - 1 })
   }
 
   down = (e: KeyboardEvent, seq: string) => {
