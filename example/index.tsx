@@ -86,50 +86,8 @@ class Node extends React.Component<NodeProps, {show: boolean, data: string[], se
   }
 }
 
-export class MyHotKeys extends React.Component {
-
-  showDocumentation = () => {
-    console.log('show doc')
-  }
-  deleteNode = () => {
-    console.log('deleted')
-  }
-  moveLeft = () => {
-    console.log('move left')
-  }
-  showChildDocumentation = (e: KeyboardEvent) => {
-    console.log('show child doc')
-    e.stopPropagation()
-  }
-
-  handlersParent = {
-    cmdK: this.showDocumentation,
-    deleteNode: this.deleteNode,
-  }
-
-  handlersChild = {
-    cmdK: this.showChildDocumentation,
-    left: this.moveLeft,
-  }
-
-  render() {
-    return <HotKeys keyMap={keyMap} handlers={this.handlersParent}>
-      <HotKeys name="header" navigator={{ down: ['left', 'right'] }}>
-        header
-      </HotKeys>
-      <HotKeys name="left" navigator={{ up: 'header', right: 'right' }}>
-        left
-      </HotKeys>
-      <HotKeys name="right" navigator={{ up: 'header', left: 'left' }}>
-        right
-      </HotKeys>
-    </HotKeys>
-  }
-}
-
 render(
   <HotKeys keyMap={keyMap} className="container">
-    <MyHotKeys />
     <HotKeys name="header" className="header" navigator={{ down: 'left' }}>
       This is a demo of react-keyboard (use arrow key to navigate between panels)
     </HotKeys>

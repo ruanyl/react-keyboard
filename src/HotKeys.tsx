@@ -20,7 +20,6 @@ interface SequenceHandler {
 interface HotKeyContext {
   hotKeyParent: HotKeys
   hotKeyMap: KeyMap
-  hotKeyChain: HotKeys[]
 }
 
 export interface KeyMap {
@@ -65,13 +64,11 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   static contextTypes = {
     hotKeyParent: PropTypes.any,
     hotKeyMap: PropTypes.object,
-    hotKeyChain: PropTypes.array,
   }
 
   static childContextTypes = {
     hotKeyParent: PropTypes.any,
     hotKeyMap: PropTypes.object,
-    hotKeyChain: PropTypes.array,
   }
 
   static defaultProps = {
@@ -85,6 +82,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   hotKeyMap: KeyMap
   mousetrap: MousetrapInstance
   name?: string
+  hotKeyChain: HotKeys[]
 
   constructor(props: HotKeysProps) {
     super(props)
@@ -96,14 +94,16 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     return {
       hotKeyParent: this,
       hotKeyMap: this.hotKeyMap,
-      hotKeyChain: this.context.hotKeyChain ? this.context.hotKeyChain : [this],
     }
   }
 
   componentWillMount() {
     this.updateMap()
-    if (this.context.hotKeyChain) {
-      this.context.hotKeyChain.push(this)
+    if (this.context.hotKeyParent) {
+      this.hotKeyChain = this.context.hotKeyParent.hotKeyChain
+      this.hotKeyChain.push(this)
+    } else {
+      this.hotKeyChain = [this]
     }
   }
 
@@ -116,8 +116,8 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     this.mounted = true
 
     let lastNodeInChain
-    if (this.context.hotKeyChain) {
-      lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
+    if (this.hotKeyChain) {
+      lastNodeInChain = this.hotKeyChain[this.hotKeyChain.length - 1]
     }
 
     if (this.props.focusOnMount && this === lastNodeInChain && this.dom) {
@@ -137,9 +137,9 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     this.mounted = false
     // remove the current component from hotKeyChain
     let lastNodeInChain
-    if (this.context.hotKeyChain) {
-      this.context.hotKeyChain.splice(this.context.hotKeyChain.indexOf(this), 1)
-      lastNodeInChain = this.context.hotKeyChain[this.context.hotKeyChain.length - 1]
+    if (this.hotKeyChain) {
+      this.hotKeyChain.splice(this.hotKeyChain.indexOf(this), 1)
+      lastNodeInChain = this.hotKeyChain[this.hotKeyChain.length - 1]
     }
 
     // if current node has parent, and parent node is not root. focus on parent
@@ -170,7 +170,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
 
   navigateTo = (target: string | string[] | null) => {
     const to = (next: string) => {
-      const targetComponent = this.context.hotKeyChain.find(instance => {
+      const targetComponent = this.hotKeyChain.find(instance => {
         return instance.name === next
       })
       if (targetComponent && targetComponent.dom) {
