@@ -5,16 +5,16 @@ import isEqual from 'lodash.isequal'
 import { findDOMNode } from 'react-dom'
 
 type Combo = string | string[]
-type ComboWithAction = {
+type ComboWithEventType = {
   combo: Combo
-  action?: string
+  eventType?: string
 }
-export type Sequence = Combo | ComboWithAction
+export type Sequence = Combo | ComboWithEventType
 export type Callback = (e: KeyboardEvent, combo: string) => any
 interface SequenceHandler {
   combo: string | string[]
   callback: Callback
-  action?: string
+  eventType?: string
 }
 
 interface HotKeyContext {
@@ -33,7 +33,7 @@ export interface Handlers {
 
 function getSequencesFromMap(hotKeyMap: KeyMap, hotKeyName: string) {
   const sequences = hotKeyMap[hotKeyName]
-  const result: Array<string | string[] | ComboWithAction> = []
+  const result: Array<string | string[] | ComboWithEventType> = []
   // If no sequence is found with this name we assume
   // the user is passing a hard-coded sequence as a key
   // for example: ctrl+q
@@ -209,12 +209,12 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       const navigatorHandler = navigator[hotKey]
 
       const sequenceHandlers: Array<SequenceHandler | undefined> = sequences.map(seq => {
-        let combo, action, callback
+        let combo, eventType, callback
         if (typeof seq === 'string' || Array.isArray(seq)) {
           combo = seq
         } else if (seq) {
           combo = seq.combo
-          action = seq.action
+          eventType = seq.eventType
         } else {
           return
         }
@@ -239,7 +239,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
           }
         }
 
-        return { callback, action, combo }
+        return { callback, eventType, combo }
       })
       allSequenceHandlers = allSequenceHandlers.concat(sequenceHandlers)
     })
@@ -247,7 +247,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     this.mousetrap.reset()
     allSequenceHandlers.forEach(handler => {
       if (handler) {
-        this.mousetrap.bind(handler.combo, handler.callback, handler.action)
+        this.mousetrap.bind(handler.combo, handler.callback, handler.eventType)
       }
     })
   }
