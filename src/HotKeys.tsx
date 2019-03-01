@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import Mousetrap from 'mousetrap'
 import isEqual from 'lodash.isequal'
-import { findDOMNode } from 'react-dom'
 
 type Combo = string | string[]
 type ComboWithEventType = {
@@ -77,7 +76,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
 
   context: HotKeyContext
   wrappedComponent = React.createRef<HTMLDivElement>()
-  dom: HTMLElement | null
   mounted: boolean
   hotKeyMap: KeyMap
   mousetrap: MousetrapInstance
@@ -86,7 +84,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
 
   constructor(props: HotKeysProps) {
     super(props)
-    this.dom = null
     this.name = props.name
   }
 
@@ -108,9 +105,8 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   }
 
   componentDidMount() {
-    this.dom = findDOMNode(this) as HTMLElement | null
-    if (this.dom) {
-      this.mousetrap = new Mousetrap(this.dom)
+    if (this.wrappedComponent.current) {
+      this.mousetrap = new Mousetrap(this.wrappedComponent.current)
     }
     this.updateHotKeys(true)
     this.mounted = true
@@ -120,8 +116,8 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
       lastNodeInChain = this.hotKeyChain[this.hotKeyChain.length - 1]
     }
 
-    if (this.props.focusOnMount && this === lastNodeInChain && this.dom) {
-      this.dom.focus()
+    if (this.props.focusOnMount && this === lastNodeInChain && this.wrappedComponent.current) {
+      this.wrappedComponent.current.focus()
     }
   }
 
@@ -144,10 +140,10 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
 
     // if current node has parent, and parent node is not root. focus on parent
     // otherwise, focus on the last node in the chain
-    if (this.context.hotKeyParent && this.context.hotKeyParent.context.hotKeyParent && this.context.hotKeyParent.dom) {
-      this.context.hotKeyParent.dom.focus()
-    } else if (lastNodeInChain && lastNodeInChain.dom) {
-      lastNodeInChain.dom.focus()
+    if (this.context.hotKeyParent && this.context.hotKeyParent.context.hotKeyParent && this.context.hotKeyParent.wrappedComponent.current) {
+      this.context.hotKeyParent.wrappedComponent.current.focus()
+    } else if (lastNodeInChain && lastNodeInChain.wrappedComponent.current) {
+      lastNodeInChain.wrappedComponent.current.focus()
     }
   }
 
@@ -171,10 +167,15 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   navigateTo = (target: string | string[] | null) => {
     const to = (next: string) => {
       const targetComponent = this.hotKeyChain.find(instance => {
-        return instance.name === next
+        const dom = instance.wrappedComponent.current
+        if (dom) {
+          const style = window.getComputedStyle(dom)
+          return instance.name === next && style.visibility !== 'hidden'
+        }
+        return false
       })
-      if (targetComponent && targetComponent.dom) {
-        targetComponent.dom.focus()
+      if (targetComponent && targetComponent.wrappedComponent.current) {
+        targetComponent.wrappedComponent.current.focus()
         return true
       }
       return false
