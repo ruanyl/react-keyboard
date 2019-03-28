@@ -47,15 +47,13 @@ interface HotKeysProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode
   name?: string
   keyMap?: KeyMap
-  onFocus?: React.FocusEventHandler
-  onBlur?: React.FocusEventHandler
   handlers?: Handlers
-  style?: React.CSSProperties
-  className?: string
   focusOnMount?: boolean
   navigator?: {
     [key: string]: string | string[] | Navigator | null
   }
+  onNavigateIn?: (preLocation?: string) => void
+  onNavigateOut?: () => void
 }
 
 export class HotKeys extends React.Component<HotKeysProps, {}> {
@@ -164,6 +162,15 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     return false
   }
 
+  focus = (preLocation?: string) => {
+    if (this.wrappedComponent.current) {
+      this.wrappedComponent.current.focus()
+      if (this.props.onNavigateIn) {
+        this.props.onNavigateIn(preLocation)
+      }
+    }
+  }
+
   navigateTo = (target: string | string[] | null) => {
     const to = (next: string) => {
       const targetComponent = this.hotKeyChain.find(instance => {
@@ -174,14 +181,17 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
         }
         return false
       })
-      if (targetComponent && targetComponent.wrappedComponent.current) {
-        targetComponent.wrappedComponent.current.focus()
+      if (targetComponent) {
+        targetComponent.focus(this.props.name)
         return true
       }
       return false
     }
 
     if (target) {
+      if (this.props.onNavigateOut) {
+        this.props.onNavigateOut()
+      }
       if (typeof target === 'string') {
         to(target)
       } else {
@@ -254,7 +264,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   }
 
   render() {
-    const { navigator, children, keyMap, handlers, focusOnMount, ...props } = this.props
+    const { navigator, children, keyMap, handlers, focusOnMount, onNavigateIn, onNavigateOut, ...props } = this.props
 
     return (
       <div {...props} ref={this.wrappedComponent} tabIndex={-1}>
