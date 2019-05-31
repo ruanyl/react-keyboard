@@ -79,10 +79,12 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   mousetrap: MousetrapInstance
   name?: string
   hotKeyChain: HotKeys[]
+  focusOnMount: boolean
 
   constructor(props: HotKeysProps) {
     super(props)
     this.name = props.name
+    this.focusOnMount = props.focusOnMount || true
   }
 
   getChildContext(): HotKeyContext {
@@ -138,9 +140,14 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
 
     // if current node has parent, and parent node is not root. focus on parent
     // otherwise, focus on the last node in the chain
-    if (this.context.hotKeyParent && this.context.hotKeyParent.context.hotKeyParent && this.context.hotKeyParent.wrappedComponent.current) {
+    if (
+      this.context.hotKeyParent &&
+      this.context.hotKeyParent.focusOnMount &&
+      this.context.hotKeyParent.context.hotKeyParent &&
+      this.context.hotKeyParent.wrappedComponent.current
+    ) {
       this.context.hotKeyParent.wrappedComponent.current.focus()
-    } else if (lastNodeInChain && lastNodeInChain.wrappedComponent.current) {
+    } else if (lastNodeInChain && lastNodeInChain.focusOnMount && lastNodeInChain.wrappedComponent.current) {
       lastNodeInChain.wrappedComponent.current.focus()
     }
   }
