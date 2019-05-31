@@ -3,20 +3,20 @@ import PropTypes from 'prop-types'
 import Mousetrap from 'mousetrap'
 import isEqual from 'lodash.isequal'
 
-type Combo = string | string[]
-type ComboWithEventType = {
+export type Combo = string | string[]
+export type ComboWithEventType = {
   combo: Combo
   eventType?: string
 }
 export type Sequence = Combo | ComboWithEventType
 export type Callback = (e: KeyboardEvent, combo: string) => any
-interface SequenceHandler {
+export interface SequenceHandler {
   combo: string | string[]
   callback: Callback
   eventType?: string
 }
 
-interface HotKeyContext {
+export interface HotKeyContext {
   hotKeyParent: HotKeys
   hotKeyMap: KeyMap
 }
@@ -43,7 +43,7 @@ function getSequencesFromMap(hotKeyMap: KeyMap, hotKeyName: string) {
 
 export type Navigator = (hotKeys: HotKeys) => string | string[] | null
 
-interface HotKeysProps extends React.HTMLAttributes<HTMLElement> {
+export interface HotKeysProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode
   name?: string
   keyMap?: KeyMap
