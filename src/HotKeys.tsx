@@ -57,7 +57,6 @@ export interface HotKeysProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 export class HotKeys extends React.Component<HotKeysProps, {}> {
-
   static contextTypes = {
     hotKeyParent: PropTypes.any,
     hotKeyMap: PropTypes.object,
@@ -69,12 +68,14 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   }
 
   static defaultProps = {
-    focusOnMount: true
+    focusOnMount: true,
   }
 
   context: HotKeyContext
   wrappedComponent = React.createRef<HTMLDivElement>()
   mounted: boolean
+  focused: boolean
+  previousFocused: boolean
   hotKeyMap: KeyMap
   mousetrap: MousetrapInstance
   name?: string
@@ -84,7 +85,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   constructor(props: HotKeysProps) {
     super(props)
     this.name = props.name
-    this.focusOnMount = props.focusOnMount || true
+    this.focusOnMount = !!props.focusOnMount
   }
 
   getChildContext(): HotKeyContext {
@@ -121,42 +122,53 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     }
   }
 
+  setFocus() {
+    // 1. update existing hotkey components
+    this.hotKeyChain.forEach(h => {
+      if (h.focused) {
+        h.focused = false
+        h.previousFocused = true
+      } else if (h.previousFocused) {
+        h.previousFocused = false
+      }
+    })
+    // 2. update current hotkey component
+    this.focused = true
+    this.previousFocused = false
+    console.log(this.wrappedComponent.current)
+  }
+
   componentDidUpdate(prevProps: HotKeysProps) {
     this.updateHotKeys(false, prevProps)
   }
 
   componentWillUnmount() {
+    console.log('unmount')
     if (this.mousetrap) {
       this.mousetrap.reset()
     }
 
     this.mounted = false
     // remove the current component from hotKeyChain
-    let lastNodeInChain
     if (this.hotKeyChain) {
       this.hotKeyChain.splice(this.hotKeyChain.indexOf(this), 1)
-      lastNodeInChain = this.hotKeyChain[this.hotKeyChain.length - 1]
     }
 
-    // if current node has parent, and parent node is not root. focus on parent
-    // otherwise, focus on the last node in the chain
-    if (
-      this.context.hotKeyParent &&
-      this.context.hotKeyParent.focusOnMount &&
-      this.context.hotKeyParent.context.hotKeyParent &&
-      this.context.hotKeyParent.wrappedComponent.current
-    ) {
-      this.context.hotKeyParent.wrappedComponent.current.focus()
-    } else if (lastNodeInChain && lastNodeInChain.focusOnMount && lastNodeInChain.wrappedComponent.current) {
-      lastNodeInChain.wrappedComponent.current.focus()
-    }
+    // focus on previously focused hotkey component
+    setTimeout(() => {
+      this.hotKeyChain.forEach(h => {
+        if (h.previousFocused) {
+          h.wrappedComponent.current?.focus()
+        }
+      })
+    })
   }
 
   buildMap() {
     const parentMap = this.context.hotKeyMap || {}
     const thisMap = this.props.keyMap || {}
 
-    return { ...parentMap, ...thisMap }
+    return {...parentMap, ...thisMap}
   }
 
   updateMap() {
@@ -210,7 +222,7 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   updateHotKeys(force = false, prevProps?: HotKeysProps) {
     const handlers = this.props.handlers || {}
     const navigator = this.props.navigator || {}
-    const prevHandlers = prevProps && prevProps.handlers || handlers
+    const prevHandlers = (prevProps && prevProps.handlers) || handlers
 
     // Ensure map is up-to-date to begin with
     // We will only bother continuing if the map was actually updated
@@ -221,46 +233,48 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     let allSequenceHandlers: Array<SequenceHandler | undefined> = []
 
     // Group all our handlers by sequence
-    Object.keys(handlers).concat(Object.keys(navigator)).forEach(hotKey => {
-      const sequences = getSequencesFromMap(this.hotKeyMap, hotKey)
-      const handler = handlers[hotKey]
-      const navigatorHandler = navigator[hotKey]
+    Object.keys(handlers)
+      .concat(Object.keys(navigator))
+      .forEach(hotKey => {
+        const sequences = getSequencesFromMap(this.hotKeyMap, hotKey)
+        const handler = handlers[hotKey]
+        const navigatorHandler = navigator[hotKey]
 
-      const sequenceHandlers: Array<SequenceHandler | undefined> = sequences.map(seq => {
-        let combo, eventType, callback
-        if (typeof seq === 'string' || Array.isArray(seq)) {
-          combo = seq
-        } else if (seq) {
-          combo = seq.combo
-          eventType = seq.eventType
-        } else {
-          return
-        }
+        const sequenceHandlers: Array<SequenceHandler | undefined> = sequences.map(seq => {
+          let combo, eventType, callback
+          if (typeof seq === 'string' || Array.isArray(seq)) {
+            combo = seq
+          } else if (seq) {
+            combo = seq.combo
+            eventType = seq.eventType
+          } else {
+            return
+          }
 
-        if (!navigatorHandler) {
-          callback = handler
-        } else {
-          callback = (e: KeyboardEvent, combo: string) => {
-            if (typeof navigatorHandler === 'string' || Array.isArray(navigatorHandler)) {
-              const target = navigatorHandler
-              this.navigateTo(target)
-            } else {
-              const target = navigatorHandler(this)
-              this.navigateTo(target)
-            }
-            if (handler) {
-              return handler(e, combo)
-            } else {
-              // if no handler, the event should not bubble up
-              return false
+          if (!navigatorHandler) {
+            callback = handler
+          } else {
+            callback = (e: KeyboardEvent, combo: string) => {
+              if (typeof navigatorHandler === 'string' || Array.isArray(navigatorHandler)) {
+                const target = navigatorHandler
+                this.navigateTo(target)
+              } else {
+                const target = navigatorHandler(this)
+                this.navigateTo(target)
+              }
+              if (handler) {
+                return handler(e, combo)
+              } else {
+                // if no handler, the event should not bubble up
+                return false
+              }
             }
           }
-        }
 
-        return { callback, eventType, combo }
+          return {callback, eventType, combo}
+        })
+        allSequenceHandlers = allSequenceHandlers.concat(sequenceHandlers)
       })
-      allSequenceHandlers = allSequenceHandlers.concat(sequenceHandlers)
-    })
 
     this.mousetrap.reset()
     allSequenceHandlers.forEach(handler => {
@@ -270,11 +284,30 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     })
   }
 
+  onFocus = (e: React.FocusEvent<HTMLElement>) => {
+    if (this.props.onFocus) {
+      this.props.onFocus(e)
+    }
+    if (e.target === this.wrappedComponent.current) {
+      this.setFocus()
+    }
+  }
+
   render() {
-    const { navigator, children, keyMap, handlers, focusOnMount, onNavigateIn, onNavigateOut, ...props } = this.props
+    const {
+      navigator,
+      children,
+      keyMap,
+      handlers,
+      focusOnMount,
+      onNavigateIn,
+      onNavigateOut,
+      onFocus,
+      ...props
+    } = this.props
 
     return (
-      <div {...props} ref={this.wrappedComponent} tabIndex={-1}>
+      <div {...props} onFocus={this.onFocus} ref={this.wrappedComponent} tabIndex={-1}>
         {children}
       </div>
     )

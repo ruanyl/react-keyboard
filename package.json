@@ -1,6 +1,6 @@
 {
   "name": "react-keyboard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A declarative library for handling hotkeys and focus within a React application",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -20,18 +20,18 @@
     "@types/react": "^16.8.2",
     "@types/react-dom": "^16.8.0",
     "ajv": "^6.6.2",
-    "babel-jest": "^23.4.2",
     "enzyme": "^3.5.0",
     "enzyme-adapter-react-16": "^1.3.1",
     "express": "^4.16.3",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^23.5.0",
     "jest-enzyme": "^7.0.1",
+    "prettier": "^1.19.1",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "ts-jest": "^23.1.4",
     "ts-loader": "^4.2.0",
-    "typescript": "^2.9.2",
+    "typescript": "3.7",
     "webpack": "^4.17.1",
     "webpack-cli": "^3.1.0",
     "webpack-dev-middleware": "^3.1.2"
@@ -39,6 +39,20 @@
   "dependencies": {
     "lodash.isequal": "^4.5.0",
     "mousetrap": "^1.6.2"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "printWidth": 100,
+    "semi": false,
+    "singleQuote": true,
+    "useTabs": false,
+    "bracketSpacing": false,
+    "arrowParens": "avoid",
+    "parser": "typescript",
+    "endOfLine": "lf",
+    "jsxBracketSameLine": false,
+    "proseWrap": "preserve"
   },
   "peerDependencies": {
     "react": ">= 0.14.0",
