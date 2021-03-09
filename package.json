@@ -1,12 +1,13 @@
 {
   "name": "react-keyboard",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A declarative library for handling hotkeys and focus within a React application",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "./node_modules/.bin/tsc --outDir lib --declaration",
     "prepublish": "npm run build",
+    "release": "standard-version --releaseCommitMessageFormat 'chore(release): {{currentTag}} [skip ci]'",
     "test": "npm run test-only",
     "test-only": "jest --coverage",
     "test:watch": "jest --watch"
@@ -29,6 +30,7 @@
     "prettier": "^1.19.1",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
+    "standard-version": "^9.1.1",
     "ts-jest": "^23.1.4",
     "ts-loader": "^4.2.0",
     "typescript": "3.7",
