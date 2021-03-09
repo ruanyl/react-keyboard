@@ -135,7 +135,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
     // 2. update current hotkey component
     this.focused = true
     this.previousFocused = false
-    console.log(this.wrappedComponent.current)
   }
 
   componentDidUpdate(prevProps: HotKeysProps) {
@@ -143,7 +142,6 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
   }
 
   componentWillUnmount() {
-    console.log('unmount')
     if (this.mousetrap) {
       this.mousetrap.reset()
     }
