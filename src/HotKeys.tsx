@@ -154,18 +154,11 @@ export class HotKeys extends React.Component<HotKeysProps, {}> {
 
     // focus on previously focused hotkey component
     setTimeout(() => {
-      let focusUpdated = false
       this.hotKeyChain.forEach(h => {
         if (h.previousFocused) {
-          focusUpdated = true
           h.wrappedComponent.current?.focus()
         }
       })
-      // if no previously focused hotkey component was found
-      // focus on the last hotkey component in the chain
-      if (!focusUpdated && this.hotKeyChain.length > 0) {
-        this.hotKeyChain[this.hotKeyChain.length - 1].wrappedComponent.current?.focus()
-      }
     })
   }
 
